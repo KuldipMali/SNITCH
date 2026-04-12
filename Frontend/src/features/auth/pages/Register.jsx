@@ -100,6 +100,20 @@ const Register = () => {
           >
             Register
           </button>
+
+          <a
+            href="/api/auth/google"
+            className="w-full flex items-center justify-center gap-3 px-4 py-2.5 bg-white text-black font-medium rounded-lg hover:bg-gray-100 transition border border-gray-300 shadow-sm"
+          >
+            {/* Google Logo */}
+            <img
+              src="https://developers.google.com/identity/images/g-logo.png"
+              alt="Google"
+              className="w-5 h-5"
+            />
+
+            <span>Sign in with Google</span>
+          </a>
         </form>
 
         {/* Footer */}
