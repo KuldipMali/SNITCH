@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useAuth } from "../hook/useAuth";
-import { useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { toast } from "react-toastify";
 
 const Login = () => {
@@ -63,13 +63,28 @@ const Login = () => {
           >
             Login
           </button>
+
+
+          <a
+            href="/api/auth/google"
+            className="w-full flex items-center justify-center gap-3 px-4 py-2.5 bg-white text-black font-medium rounded-lg hover:bg-gray-100 transition border border-gray-300 shadow-sm"
+          >
+            {/* Google Logo */}
+            <img
+              src="https://developers.google.com/identity/images/g-logo.png"
+              alt="Google"
+              className="w-5 h-5"
+            />
+
+            <span>Sign in with Google</span>
+          </a>
         </form>
 
         {/* Footer */}
         <p className="text-xs  text-gray-500 mt-6 text-center">
           Don’t have an account?{" "}
           <span className="text-[#c9a227] cursor-pointer hover:underline">
-            Register
+          <Link to='/register'>Register</Link>
           </span>
         </p>
       </div>
