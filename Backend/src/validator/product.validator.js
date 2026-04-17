@@ -1,13 +1,15 @@
 import { body, validationResult } from "express-validator";
 
 function validateRequest(req, res, next) {
-  const errors = validateRequest(req);
+  const errors = validationResult(req); // ✅ correct
 
   if (!errors.isEmpty()) {
-    return res
-      .status(400)
-      .json({ message: "Validation Error", error: errors.message });
+    return res.status(400).json({
+      message: "Validation Error",
+      errors: errors.array(), // better than errors.message
+    });
   }
+
   next();
 }
 

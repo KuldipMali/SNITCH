@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { useAuth } from "../hook/useAuth";
-import { Link } from "react-router";
-import { useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { toast } from "react-toastify";
 
 const Register = () => {
@@ -14,7 +13,6 @@ const Register = () => {
   });
 
   const navigate = useNavigate();
-
   const { handleRegister } = useAuth();
 
   const handleChange = (e) => {
@@ -29,103 +27,132 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     await handleRegister(formData);
-
-    navigate("/");
     toast.success("User registered successfully");
+    navigate("/");
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#0f0f0f]">
-      <div className="w-95 bg-[#181818] border border-[#2a2a2a] rounded-2xl p-8 shadow-lg">
-        {/* Heading */}
-        <h2 className="text-2xl font-semibold text-white">Create Account</h2>
-        <p className="text-sm text-gray-400 mt-1 mb-6">
-          Join and start your journey 🚀
-        </p>
+    <div className="h-screen flex overflow-hidden">
+      {/* LEFT SIDE - IMAGE */}
+      <div className="hidden lg:flex w-1/2 h-full relative bg-black">
+        <img
+          src="https://images.unsplash.com/photo-1556821840-3a63f95609a7"
+          alt="model"
+          className="w-full h-full object-cover opacity-90"
+        />
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <input
-            type="text"
-            name="fullname"
-            placeholder="Full Name"
-            value={formData.fullname}
-            onChange={handleChange}
-            className="w-full px-4 py-2.5 bg-[#121212] border border-[#2a2a2a] text-white rounded-lg placeholder-gray-500 focus:outline-none focus:border-[#c9a227]"
-          />
+        <div className="absolute bottom-10 left-10 text-white">
+          <h1 className="text-5xl tracking-widest font-light">SNITCH</h1>
+          <p className="text-xs mt-2 text-gray-300 tracking-wider">
+            AUTUMN / WINTER ARCHIVE 2024
+          </p>
+        </div>
+      </div>
 
-          <input
-            type="email"
-            name="email"
-            placeholder="Email"
-            value={formData.email}
-            onChange={handleChange}
-            className="w-full px-4 py-2.5 bg-[#121212] border border-[#2a2a2a] text-white rounded-lg placeholder-gray-500 focus:outline-none focus:border-[#c9a227]"
-          />
-
-          <input
-            type="text"
-            name="contact"
-            placeholder="Contact Number"
-            value={formData.contact}
-            onChange={handleChange}
-            className="w-full px-4 py-2.5 bg-[#121212] border border-[#2a2a2a] text-white rounded-lg placeholder-gray-500 focus:outline-none focus:border-[#c9a227]"
-          />
-
-          <input
-            type="password"
-            name="password"
-            placeholder="Password"
-            value={formData.password}
-            onChange={handleChange}
-            className="w-full px-4 py-2.5 bg-[#121212] border border-[#2a2a2a] text-white rounded-lg placeholder-gray-500 focus:outline-none focus:border-[#c9a227]"
-          />
-
-          {/* Seller checkbox */}
-          <div className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              name="isSeller"
-              checked={formData.isSeller}
-              onChange={handleChange}
-              className="accent-[#c9a227]"
-            />
-            <label className="text-sm text-gray-300">Register as Seller</label>
+      {/* RIGHT SIDE - FORM */}
+      <div className="w-full lg:w-1/2 h-full bg-[#f8f8f8] flex items-center justify-center px-6">
+        {/* Scroll only inside form if needed */}
+        <div className="w-full px-6 py-6 rounded-2xl max-w-md max-h-full overflow-y-auto">
+          {/* Tabs */}
+          <div className="flex gap-6 mb-5 text-sm font-medium">
+            <Link to="/login" className="text-gray-400 hover:text-black">
+              LOGIN
+            </Link>
+            <span className="text-yellow-500 border-b-2 border-yellow-500 pb-1">
+              SIGN UP
+            </span>
           </div>
 
-          {/* Button */}
-          <button
-            type="submit"
-            className="w-full cursor-pointer py-2.5 bg-[#c9a227] text-black font-semibold rounded-lg hover:bg-[#b8961e] transition"
-          >
-            Register
-          </button>
+          {/* Heading */}
+          <h2 className="text-2xl font-semibold text-gray-800">
+            Create Account
+          </h2>
+          <p className="text-sm text-gray-500 mb-5">
+            Join the elite streetwear community.
+          </p>
 
-          <a
-            href="/api/auth/google"
-            className="w-full flex items-center justify-center gap-3 px-4 py-2.5 bg-white text-black font-medium rounded-lg hover:bg-gray-100 transition border border-gray-300 shadow-sm"
-          >
-            {/* Google Logo */}
-            <img
-              src="https://developers.google.com/identity/images/g-logo.png"
-              alt="Google"
-              className="w-5 h-5"
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="space-y-3">
+            <input
+              type="text"
+              name="fullname"
+              placeholder="Full Name"
+              value={formData.fullname}
+              onChange={handleChange}
+              className="w-full py-3 bg-transparent border-b-2 border-gray-300 focus:border-yellow-500 focus:outline-none transition"
+              />
+
+            <input
+              type="email"
+              name="email"
+              placeholder="Email Address"
+              value={formData.email}
+              onChange={handleChange}
+              className="w-full py-3 bg-transparent border-b-2 border-gray-300 focus:border-yellow-500 focus:outline-none transition"
             />
 
-            <span>Sign in with Google</span>
-          </a>
-        </form>
+            <input
+              type="text"
+              name="contact"
+              placeholder="Contact Number"
+              value={formData.contact}
+              onChange={handleChange}
+              className="w-full py-3 bg-transparent border-b-2 border-gray-300 focus:border-yellow-500 focus:outline-none transition"
+            />
 
-        {/* Footer */}
-        <p className="text-xs text-gray-500 mt-6 text-center">
-          Already have an account?{" "}
-          <Link
-            to="/login"
-            className="text-[#c9a227] cursor-pointer hover:underline"
-          >
-            Login
-          </Link>
-        </p>
+            <input
+              type="password"
+              name="password"
+              placeholder="Password"
+              value={formData.password}
+              onChange={handleChange}
+             className="w-full py-3 bg-transparent border-b-2 border-gray-300 focus:border-yellow-500 focus:outline-none transition"
+            />
+
+            {/* Checkbox */}
+            <div className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                name="isSeller"
+                checked={formData.isSeller}
+                onChange={handleChange}
+                className="accent-yellow-500"
+              />
+              <label className="text-sm text-gray-600">
+                Register as Seller
+              </label>
+            </div>
+
+            {/* Button */}
+            <button
+              type="submit"
+              className="w-full py-3 bg-yellow-500 text-black font-semibold rounded-md hover:bg-yellow-400 transition"
+            >
+              REGISTER
+            </button>
+
+            {/* Google */}
+            <a
+              href="/api/auth/google"
+              className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-white border rounded-md hover:bg-gray-100 transition"
+            >
+              <img
+                src="https://developers.google.com/identity/images/g-logo.png"
+                alt="Google"
+                className="w-5 h-5"
+              />
+              <span>Sign in with Google</span>
+            </a>
+          </form>
+
+          {/* Footer */}
+          <p className="text-xs text-gray-500 mt-5 text-center">
+            Already have an account?{" "}
+            <Link to="/login" className="text-yellow-500 hover:underline">
+              Login
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
   );

@@ -1,7 +1,11 @@
 import React, { useState } from "react";
 import { useProduct } from "../hook/useProduct";
+import { useNavigate } from "react-router";
+import { toast } from "react-toastify";
 
 const CreateProduct = () => {
+  const navigate = useNavigate();
+
   const { handleCreateProduct } = useProduct();
   const [formData, setFormData] = useState({
     title: "",
@@ -67,31 +71,33 @@ const CreateProduct = () => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    const data = new FormData();
-    data.append("title", formData.title);
-    data.append("description", formData.description);
-    data.append("priceAmount", formData.priceAmount);
-    data.append("priceCurrency", formData.priceCurrency);
-
-    images.forEach((image) => {
-      data.append("images", image);
-    });
-
     try {
+      const data = new FormData();
+
+      data.append("title", formData.title);
+      data.append("description", formData.description);
+      data.append("priceAmount", formData.priceAmount);
+      data.append("priceCurrency", formData.priceCurrency);
+
+      images.forEach((image) => {
+        data.append("images", image); // IMPORTANT
+      });
+
       await handleCreateProduct(data);
-      alert("Product created successfully!");
-      // Reset form
+
+      setImages([]);
+      setPreviews([]);
       setFormData({
         title: "",
         description: "",
         priceAmount: "",
-        priceCurrency: "USD",
+        priceCurrency: "INR",
       });
-      setImages([]);
-      setPreviews([]);
+
+      navigate("/");
+      toast.success("Product created successfully");
     } catch (error) {
-      console.error("Failed to create product:", error);
-      alert("Failed to create product. See console for details.");
+      console.error(error);
     } finally {
       setIsSubmitting(false);
     }
