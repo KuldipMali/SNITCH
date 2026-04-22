@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useProduct } from "../hook/useProduct";
 import { useNavigate } from "react-router";
+import { toast } from "react-toastify";
 
 const CreateProduct = () => {
   const navigate = useNavigate();
@@ -37,20 +38,17 @@ const CreateProduct = () => {
     e.preventDefault();
 
     const data = new FormData();
-    Object.keys(formData).forEach((key) =>
-      data.append(key, formData[key])
-    );
+    Object.keys(formData).forEach((key) => data.append(key, formData[key]));
     images.forEach((img) => data.append("images", img));
 
     await handleCreateProduct(data);
-    navigate("/");
+    navigate("/seller/dashboard");
+    toast.success("Product created successfully");
   };
 
   return (
     <div className="h-screen bg-[#f8f8f8] flex items-center justify-center px-6">
-
       <div className="w-full max-w-2xl">
-
         {/* Heading */}
         <div className="mb-10">
           <h1 className="text-3xl font-light tracking-wide text-gray-900">
@@ -63,7 +61,6 @@ const CreateProduct = () => {
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-8">
-
           {/* Title */}
           <div>
             <label className="text-xs tracking-widest text-gray-400 uppercase">
@@ -167,7 +164,6 @@ const CreateProduct = () => {
           >
             PUBLISH PRODUCT
           </button>
-
         </form>
       </div>
     </div>

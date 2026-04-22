@@ -23,14 +23,21 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await handleLogin(formData);
-    toast.success("User logged in successfully");
-    navigate("/");
+    try {
+      const user = await handleLogin(formData);
+      if (user.role === "buyer") {
+        navigate("/");
+      } else if (user.role === "seller") {
+        navigate("/seller/dashboard");
+      }
+      toast.success("User logged in successfully");
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Login failed");
+    }
   };
 
   return (
     <div className="h-screen flex overflow-hidden">
-      
       {/* LEFT SIDE - IMAGE */}
       <div className="hidden lg:flex w-1/2 h-full relative bg-black">
         <img
@@ -49,9 +56,7 @@ const Login = () => {
 
       {/* RIGHT SIDE - FORM */}
       <div className="w-full lg:w-1/2 h-full bg-[#f8f8f8] flex items-center justify-center px-6">
-        
         <div className="w-full max-w-md max-h-full overflow-y-auto">
-
           {/* Tabs */}
           <div className="flex gap-6 mb-5 text-sm font-medium">
             <span className="text-yellow-500 border-b-2 border-yellow-500 pb-1">
@@ -63,16 +68,11 @@ const Login = () => {
           </div>
 
           {/* Heading */}
-          <h2 className="text-2xl font-semibold text-gray-800">
-            Welcome Back
-          </h2>
-          <p className="text-sm text-gray-500 mb-5">
-            Login to your account
-          </p>
+          <h2 className="text-2xl font-semibold text-gray-800">Welcome Back</h2>
+          <p className="text-sm text-gray-500 mb-5">Login to your account</p>
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-3">
-
             <input
               type="email"
               name="email"
@@ -94,15 +94,18 @@ const Login = () => {
             {/* Button */}
             <button
               type="submit"
-              className="w-full py-3 bg-yellow-500 text-black font-semibold rounded-md hover:bg-yellow-400 transition"
+              className="w-full py-3 bg-yellow-500 text-black font-semibold hover:bg-yellow-400 transition"
             >
               LOGIN
             </button>
 
+            <hr />
+            <p className="text-center py-3 text-[12px]">OR</p>
+
             {/* Google */}
             <a
               href="/api/auth/google"
-              className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-white border rounded-md hover:bg-gray-100 transition"
+              className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-white border hover:bg-gray-100 transition"
             >
               <img
                 src="https://developers.google.com/identity/images/g-logo.png"
@@ -120,7 +123,6 @@ const Login = () => {
               Register
             </Link>
           </p>
-
         </div>
       </div>
     </div>

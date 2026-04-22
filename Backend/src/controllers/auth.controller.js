@@ -50,6 +50,16 @@ export const register = async (req, res) => {
     });
 
     await sendTokenResponse(user, res, "User registered successfully");
+    return res.status(200).json({
+      success: true,
+      message: "Registered successful",
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role, // if you have roles
+      },
+    });
   } catch (err) {
     console.log(err);
     return res.status(500).json({ message: err.message });
@@ -72,6 +82,17 @@ export const login = async (req, res) => {
   }
 
   await sendTokenResponse(user, res, "Login successful");
+
+  return res.status(200).json({
+    success: true,
+    message: "Login successful",
+    user: {
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role, // if you have roles
+    },
+  });
 };
 
 export const googleCallback = async (req, res) => {
@@ -101,4 +122,19 @@ export const googleCallback = async (req, res) => {
   res.cookie("token", token);
 
   res.redirect("http://localhost:5173/");
+};
+
+export const getMe = async (req, res) => {
+  const user = req.user;
+
+  res.status(200).json({
+    success: true,
+    user: {
+      id: user._id,
+      email: user.email,
+      contact: user.contact,
+      fullname: user.fullname,
+      role: user.role,
+    },
+  });
 };

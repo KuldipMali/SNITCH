@@ -1,7 +1,7 @@
 //In this file, we manage the service layer and state layer.
 
 import { setUser, setLoading, setError } from "../state/auth.slice";
-import { register, login } from "../service/auth.api";
+import { register, login, getMe } from "../service/auth.api";
 import { useDispatch } from "react-redux";
 
 export const useAuth = () => {
@@ -22,12 +22,27 @@ export const useAuth = () => {
       isSeller,
     });
     dispatch(setUser(data.user));
+    return data.user;
   }
 
   async function handleLogin({ email, password }) {
     const data = await login({ email, password });
-    dispatch(setUser(data));
+    dispatch(setUser(data.user));
+    return data.user;
   }
 
-  return { handleRegister, handleLogin };
+  async function handleGetMe() {
+    try {
+      dispatch(setLoading(true));
+      const data = await getMe();
+      dispatch(setUser(data.user));
+      dispatch(setLoading(false));
+    } catch (err) {
+      console.log(err);
+    } finally {
+      dispatch(setLoading(false));
+    }
+  }
+
+  return { handleRegister, handleLogin, handleGetMe };
 };

@@ -80,7 +80,7 @@ const Register = () => {
               value={formData.fullname}
               onChange={handleChange}
               className="w-full py-3 bg-transparent border-b-2 border-gray-300 focus:border-yellow-500 focus:outline-none transition"
-              />
+            />
 
             <input
               type="email"
@@ -106,7 +106,7 @@ const Register = () => {
               placeholder="Password"
               value={formData.password}
               onChange={handleChange}
-             className="w-full py-3 bg-transparent border-b-2 border-gray-300 focus:border-yellow-500 focus:outline-none transition"
+              className="w-full py-3 bg-transparent border-b-2 border-gray-300 focus:border-yellow-500 focus:outline-none transition"
             />
 
             {/* Checkbox */}
@@ -126,15 +126,19 @@ const Register = () => {
             {/* Button */}
             <button
               type="submit"
-              className="w-full py-3 bg-yellow-500 text-black font-semibold rounded-md hover:bg-yellow-400 transition"
+              className="w-full py-3 mb-8 bg-yellow-500 text-black font-semibold hover:bg-yellow-400 transition"
             >
               REGISTER
             </button>
 
+            <hr />
+
+            <p className="text-center text-[12px]">OR</p>
+
             {/* Google */}
             <a
               href="/api/auth/google"
-              className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-white border rounded-md hover:bg-gray-100 transition"
+              className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-white border mt-8 hover:bg-gray-100 transition"
             >
               <img
                 src="https://developers.google.com/identity/images/g-logo.png"
