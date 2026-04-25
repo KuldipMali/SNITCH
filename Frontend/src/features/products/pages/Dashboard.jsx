@@ -38,8 +38,11 @@ const Dashboard = () => {
         {sellerProducts?.length > 0 ? (
           sellerProducts.map((product) => (
             <div
+            onClick={() => {
+              navigate(`/seller/product/${product._id}`)
+            }}
               key={product._id}
-              className="bg-white rounded-xl overflow-hidden border border-gray-200 hover:shadow-md transition"
+              className="bg-white rounded-xl cursor-pointer overflow-hidden border border-gray-200 hover:shadow-md transition"
             >
               {/* Image */}
               <div className="w-full h-48 bg-gray-100 overflow-hidden">
