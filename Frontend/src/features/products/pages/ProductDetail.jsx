@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { useParams, Link, useNavigate } from "react-router";
 import { useProduct } from "../hook/useProduct";
+import { useCart } from "../../cart/hook/useCart";
 
 const ProductDetail = () => {
   const { productId } = useParams();
@@ -9,6 +10,10 @@ const ProductDetail = () => {
   const [selectedAttributes, setSelectedAttributes] = useState({});
   const navigate = useNavigate();
   const { handleGetProductById } = useProduct();
+
+  
+
+  const {handleAddItem} = useCart();
 
   async function fetchProductDetails() {
     try {
@@ -360,9 +365,14 @@ const ProductDetail = () => {
                   onClick={() => {
                     handleAddItem({
                       productId: product._id,
-                      variantId: activeVariant._id,
+                      variantId: activeVariant._id 
                     });
                   }}
+                  
+                
+
+
+                  
                 >
                   Add to Cart
                 </button>
