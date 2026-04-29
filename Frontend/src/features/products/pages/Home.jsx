@@ -1,71 +1,125 @@
-import React, { useEffect } from "react";
-import { useSelector } from "react-redux";
-import { useProduct } from "../hook/useProduct";
-import { useNavigate } from "react-router";
+import React, { useEffect } from 'react';
+import { useSelector } from 'react-redux';
+import { Link } from 'react-router';
+import { useNavigate } from 'react-router';
+import { useProduct } from '../hook/useProduct';
 
 const Home = () => {
-  const products = useSelector((state) => state.product.products);
-  const { handleGetAllProducts } = useProduct();
-  const navigate = useNavigate();
+    const products = useSelector(state => state.product.products);
+    const user = useSelector(state => state.auth.user);
+    const { handleGetAllProducts } = useProduct();
 
-  useEffect(() => {
-    handleGetAllProducts();
-  }, []);
+    const navigate = useNavigate();
 
-  return (
-    <div className="min-h-screen bg-[#f8f8f8] px-6 py-10">
-      {/* Header */}
-      <div className="max-w-6xl mx-auto mb-10">
-        <h1 className="text-3xl font-light tracking-wide text-gray-900">
-          Explore Collection
-        </h1>
-        <p className="text-sm text-gray-500 mt-2">
-          Discover premium styles curated for you
-        </p>
-      </div>
+    useEffect(() => {
+        handleGetAllProducts();
+    }, []);
 
-      {/* Products Grid */}
-      <div className="max-w-6xl mx-auto grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
-        {products?.length > 0 ? (
-          products.map((product) => (
+    return (
+        <>
+            {/* Google Fonts */}
+            <link
+                href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Inter:wght@300;400;500;600&display=swap"
+                rel="stylesheet"
+            />
+
             <div
-              key={product._id}
-              onClick={() => navigate(`/product/${product._id}`)}
-              className="group cursor-pointer"
+                className="min-h-screen selection:bg-[#C9A96E]/30"
+                style={{ backgroundColor: '#fbf9f6', fontFamily: "'Inter', sans-serif" }}
             >
-              {/* Image */}
-              <div className="w-full h-60 bg-gray-100 overflow-hidden rounded-lg">
-                <img
-                  src={product.images[0]?.url}
-                  alt={product.title}
-                  className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
-                />
-              </div>
+               
 
-              {/* Content */}
-              <div className="mt-3 space-y-1">
-                <h2 className="text-sm text-gray-800 font-medium line-clamp-1">
-                  {product.title}
-                </h2>
+                <div className="max-w-7xl mx-auto px-8 lg:px-16 xl:px-24">
+                    {/* ── Hero / Header ── */}
+                    <div className="pt-20 pb-20 text-center flex flex-col items-center">
+                        <span className="text-[10px] uppercase tracking-[0.24em] font-medium mb-6" style={{ color: '#C9A96E' }}>
+                            The Collection
+                        </span>
+                        <h1
+                            className="text-5xl lg:text-7xl font-light leading-tight mb-6"
+                            style={{ fontFamily: "'Cormorant Garamond', serif", color: '#1b1c1a' }}
+                        >
+                            Curated Archive
+                        </h1>
+                        <p className="max-w-xl mx-auto text-sm leading-relaxed" style={{ color: '#7A6E63' }}>
+                            Discover our latest curation of premium minimalist pieces, meticulously designed for effortless elegance and enduring quality.
+                        </p>
+                    </div>
 
-                <p className="text-xs text-gray-500 line-clamp-1">
-                  {product.description}
-                </p>
+                    {/* ── Product Grid ── */}
+                    {products && products.length > 0 ? (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-8 gap-y-16 pb-32">
+                            {products.map(product => {
+                                const imageUrl = product.images && product.images.length > 0
+                                    ? product.images[ 0 ].url
+                                    : '/snitch_editorial_warm.png'; // Fallback
 
-                <p className="text-sm text-gray-900 font-medium">
-                  ₹{product.price.amount}
-                </p>
-              </div>
+                                return (
+                                    <div
+                                        onClick={() => navigate(`/product/${product._id}`)}
+                                        key={product._id} className="group cursor-pointer flex flex-col">
+                                        {/* Image Container */}
+                                        <div className="aspect-[4/5] overflow-hidden mb-6" style={{ backgroundColor: '#f5f3f0' }}>
+                                            <img
+                                                src={imageUrl}
+                                                alt={product.title}
+                                                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                                            />
+                                        </div>
+
+                                        {/* Product Details */}
+                                        <div className="flex flex-col gap-2">
+                                            <h3
+                                                className="text-xl leading-snug transition-colors duration-300 group-hover:text-[#C9A96E]"
+                                                style={{ fontFamily: "'Cormorant Garamond', serif", color: '#1b1c1a' }}
+                                            >
+                                                {product.title}
+                                            </h3>
+
+                                            <p
+                                                className="text-[12px] line-clamp-2 leading-relaxed"
+                                                style={{ color: '#7A6E63' }}
+                                            >
+                                                {product.description}
+                                            </p>
+
+                                            <div className="mt-2">
+                                                <span
+                                                    className="text-[10px] uppercase tracking-[0.2em] font-medium"
+                                                    style={{ color: '#1b1c1a' }}
+                                                >
+                                                    {product.price?.currency} {product.price?.amount?.toLocaleString()}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    ) : (
+                        <div className="py-24 text-center flex flex-col items-center">
+                            <h2 className="text-2xl mb-4" style={{ fontFamily: "'Cormorant Garamond', serif", color: '#1b1c1a' }}>
+                                No pieces available.
+                            </h2>
+                            <p className="max-w-md mx-auto text-sm leading-relaxed" style={{ color: '#7A6E63' }}>
+                                We are currently preparing our next collection. Please check back later.
+                            </p>
+                        </div>
+                    )}
+                </div>
+
+                {/* ── Footer ── */}
+                <footer className="border-t py-12 text-center" style={{ borderColor: '#e4e2df' }}>
+                    <span
+                        className="text-[10px] uppercase tracking-[0.35em]"
+                        style={{ fontFamily: "'Cormorant Garamond', serif", color: '#C9A96E' }}
+                    >
+                        Snitch. © {new Date().getFullYear()}
+                    </span>
+                </footer>
             </div>
-          ))
-        ) : (
-          <div className="col-span-full text-center text-gray-400 mt-20">
-            No products available
-          </div>
-        )}
-      </div>
-    </div>
-  );
+        </>
+    );
 };
 
 export default Home;

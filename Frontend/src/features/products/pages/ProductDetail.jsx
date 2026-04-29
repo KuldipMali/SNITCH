@@ -2,6 +2,7 @@ import React, { useEffect, useState, useMemo } from "react";
 import { useParams, Link, useNavigate } from "react-router";
 import { useProduct } from "../hook/useProduct";
 import { useCart } from "../../cart/hook/useCart";
+import { toast } from "react-toastify";
 
 const ProductDetail = () => {
   const { productId } = useParams();
@@ -11,9 +12,7 @@ const ProductDetail = () => {
   const navigate = useNavigate();
   const { handleGetProductById } = useProduct();
 
-  
-
-  const {handleAddItem} = useCart();
+  const { handleAddItem } = useCart();
 
   async function fetchProductDetails() {
     try {
@@ -365,14 +364,10 @@ const ProductDetail = () => {
                   onClick={() => {
                     handleAddItem({
                       productId: product._id,
-                      variantId: activeVariant._id 
+                      variantId: activeVariant._id,
                     });
+                    toast.success("Added to cart!");
                   }}
-                  
-                
-
-
-                  
                 >
                   Add to Cart
                 </button>
