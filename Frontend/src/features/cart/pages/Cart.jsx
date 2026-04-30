@@ -24,7 +24,7 @@ const Cart = () => {
   const cart = useSelector((state) => state.cart);
   const {
     handleGetCart,
-    handleIncrementCartItem,
+    handleIncrementCartItemQuantity,
     handleCreateCartOrder,
     handleVerifyCartOrder,
   } = useCart();
@@ -188,8 +188,7 @@ const Cart = () => {
                     product,
                     variant: variantId,
                     price,
-                    product: { _id },
-                  } = item;
+                    product: { _id }} = item;
                   const variantDetail = getVariantDetails(product, variantId);
                   const imageUrl = getDisplayImage(product, variantDetail);
                   const displayPrice =
@@ -343,7 +342,7 @@ const Cart = () => {
                             <button
                               id={`qty-inc-${_id}`}
                               onClick={() =>
-                                handleIncrementCartItem({
+                                handleIncrementCartItemQuantity({
                                   productId: _id,
                                   variantId,
                                 })
@@ -532,7 +531,6 @@ const Cart = () => {
                     e.currentTarget.style.backgroundColor = tokens.onSurface;
                     e.currentTarget.style.color = tokens.surface;
                   }}
-                  
                 >
                   Proceed to Checkout
                 </button>
