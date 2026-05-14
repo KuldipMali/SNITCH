@@ -21,6 +21,20 @@ export const getCart = async () => {
 export const incrementCartItemQuantity = async ({ productId, variantId }) => {
   const response = await cartAPI.patch(
     `/quantity/increment/${productId}/${variantId}`,
-  );  
+  );
+  return response.data;
+};
+
+export const decrementCartItemQuantity = async ({ productId, variantId }) => {
+  const response = await cartAPI.patch(
+    `/quantity/decrement/${productId}/${variantId}`,
+  );
+  return response.data;
+};
+
+export const deleteCartItem = async ({ productId, variantId }) => {
+  const response = await cartAPI.delete("/", {
+    data: { productId, variantId },
+  });
   return response.data;
 };

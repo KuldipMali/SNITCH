@@ -27,6 +27,8 @@ const Cart = () => {
     handleIncrementCartItemQuantity,
     handleCreateCartOrder,
     handleVerifyCartOrder,
+    handleDecrementCartItemQuantity,
+    handleDeleteCartItem,
   } = useCart();
   const navigate = useNavigate();
   const user = useSelector((state) => state.user);
@@ -188,7 +190,8 @@ const Cart = () => {
                     product,
                     variant: variantId,
                     price,
-                    product: { _id }} = item;
+                    product: { _id },
+                  } = item;
                   const variantDetail = getVariantDetails(product, variantId);
                   const imageUrl = getDisplayImage(product, variantDetail);
                   const displayPrice =
@@ -323,7 +326,12 @@ const Cart = () => {
                           >
                             <button
                               id={`qty-dec-${_id}`}
-                              onClick={() => changeQty(_id, -1)}
+                              onClick={() =>
+                                handleDecrementCartItemQuantity({
+                                  productId: _id,
+                                  variantId,
+                                })
+                              }
                               className="w-9 h-9 flex items-center justify-center text-sm font-light transition-colors hover:opacity-60"
                               style={{
                                 color: tokens.onSurface,
@@ -363,6 +371,7 @@ const Cart = () => {
                             id={`remove-${_id}`}
                             className="text-[10px] uppercase tracking-[0.22em] font-medium transition-all duration-200 hover:underline hover:opacity-70"
                             style={{ color: tokens.muted }}
+                            onClick={() => handleDeleteCartItem(_id)}
                           >
                             Remove
                           </button>

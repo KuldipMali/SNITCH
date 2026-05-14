@@ -88,7 +88,58 @@ export const addToCart = async (req, res) => {
 export const getCart = async (req, res) => {
   const user = req.user;
 
-  let cart = await getCartDetails(user._id);
+  let cart = (
+    await cartModel.aggregate([
+      {
+        $match: {
+          user: new mongoose.Types.ObjectId(user._id),
+        },
+      },
+      { $unwind: { path: "$items" } },
+      {
+        $lookup: {
+          from: "products",
+          localField: "items.product",
+          foreignField: "_id",
+          as: "items.product",
+        },
+      },
+      { $unwind: { path: "$items.product" } },
+      {
+        $unwind: { path: "$items.product.variants" },
+      },
+      {
+        $match: {
+          $expr: {
+            $eq: ["$items.variant", "$items.product.variants._id"],
+          },
+        },
+      },
+      {
+        $addFields: {
+          itemPrice: {
+            price: {
+              $multiply: [
+                "$items.quantity",
+                "$items.product.variants.price.amount",
+              ],
+            },
+            currency: "$items.product.variants.price.currency",
+          },
+        },
+      },
+      {
+        $group: {
+          _id: "$_id",
+          totalPrice: { $sum: "$itemPrice.price" },
+          currency: {
+            $first: "$itemPrice.currency",
+          },
+          items: { $push: "$items" },
+        },
+      },
+    ])
+  )[0];
 
   if (!cart) {
     cart = await cartModel.create({ user: user._id });
@@ -153,6 +204,48 @@ export const incrementCartItemQuantity = async (req, res) => {
 
   return res.status(200).json({
     message: "Cart item quantity incremented successfully",
+    success: true,
+  });
+};
+
+export const decrementCartItemQuantity = async (req, res) => {
+  const { productId, variantId } = req.params;
+
+  const cart = await cartModel.findOne({ user: req.user._id });
+
+  if (!cart) {
+    return res.status(404).json({
+      message: "Cart not found",
+      success: false,
+    });
+  }
+
+  const itemQuantityInCart =
+    cart.items.find(
+      (item) =>
+        item.product.toString() === productId &&
+        item.variant?.toString() === variantId,
+    )?.quantity || 0;
+
+  if (itemQuantityInCart - 1 < 1) {
+    return res.status(400).json({
+      message: "Quantity cannot be less than 1",
+      success: false,
+    });
+  }
+
+  await cartModel.findOneAndUpdate(
+    {
+      user: req.user._id,
+      "items.product": productId,
+      "items.variant": variantId,
+    },
+    { $inc: { "items.$.quantity": -1 } },
+    { new: true },
+  );
+
+  return res.status(200).json({
+    message: "Cart item quantity decremented successfully",
     success: true,
   });
 };
@@ -247,6 +340,32 @@ export const verifyOrderController = async (req, res) => {
 
   return res.status(200).json({
     message: "Payment verified successfully",
+    success: true,
+  });
+};
+
+export const deleteCartItem = async (req, res) => {
+  const { productId, variantId } = req.params;
+
+  const cart = await cartModel.findOne({ user: req.user._id });
+
+  if (!cart) {
+    return res.status(404).json({
+      message: "Cart not found",
+      success: false,
+    });
+  }
+
+  await cartModel.findOneAndUpdate(
+    {
+      user: req.user._id,
+    },
+    { $pull: { items: { product: productId, variant: variantId } } },
+    { new: true },
+  );
+
+  return res.status(200).json({
+    message: "Cart item deleted successfully",
     success: true,
   });
 };
