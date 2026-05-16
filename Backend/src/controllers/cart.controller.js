@@ -1,10 +1,12 @@
 import cartModel from "../models/cart.model.js";
 import productModel from "../models/product.model.js";
 import { stockOfVariant } from "../dao/product.dao.js";
-
 import mongoose from "mongoose";
 import { getCartDetails } from "../dao/cart.dao.js";
 import { config } from "../config/config.js";
+import { createOrder } from "../services/payment.service.js";
+import paymentModel from "../models/payment.model.js";
+import { validatePaymentVerification } from "razorpay/dist/utils/razorpay-utils.js";
 
 export const addToCart = async (req, res) => {
   const { productId, variantId } = req.params;
@@ -88,58 +90,7 @@ export const addToCart = async (req, res) => {
 export const getCart = async (req, res) => {
   const user = req.user;
 
-  let cart = (
-    await cartModel.aggregate([
-      {
-        $match: {
-          user: new mongoose.Types.ObjectId(user._id),
-        },
-      },
-      { $unwind: { path: "$items" } },
-      {
-        $lookup: {
-          from: "products",
-          localField: "items.product",
-          foreignField: "_id",
-          as: "items.product",
-        },
-      },
-      { $unwind: { path: "$items.product" } },
-      {
-        $unwind: { path: "$items.product.variants" },
-      },
-      {
-        $match: {
-          $expr: {
-            $eq: ["$items.variant", "$items.product.variants._id"],
-          },
-        },
-      },
-      {
-        $addFields: {
-          itemPrice: {
-            price: {
-              $multiply: [
-                "$items.quantity",
-                "$items.product.variants.price.amount",
-              ],
-            },
-            currency: "$items.product.variants.price.currency",
-          },
-        },
-      },
-      {
-        $group: {
-          _id: "$_id",
-          totalPrice: { $sum: "$itemPrice.price" },
-          currency: {
-            $first: "$itemPrice.currency",
-          },
-          items: { $push: "$items" },
-        },
-      },
-    ])
-  )[0];
+  let cart = await getCartDetails(user._id);
 
   if (!cart) {
     cart = await cartModel.create({ user: user._id });
@@ -250,6 +201,32 @@ export const decrementCartItemQuantity = async (req, res) => {
   });
 };
 
+export const deleteCartItem = async (req, res) => {
+  const { productId, variantId } = req.params;
+
+  const cart = await cartModel.findOne({ user: req.user._id });
+
+  if (!cart) {
+    return res.status(404).json({
+      message: "Cart not found",
+      success: false,
+    });
+  }
+
+  await cartModel.findOneAndUpdate(
+    {
+      user: req.user._id,
+    },
+    { $pull: { items: { product: productId, variant: variantId } } },
+    { new: true },
+  );
+
+  return res.status(200).json({
+    message: "Cart item deleted successfully",
+    success: true,
+  });
+};
+
 export const createOrderController = async (req, res) => {
   const cart = await getCartDetails(req.user._id);
 
@@ -332,7 +309,6 @@ export const verifyOrderController = async (req, res) => {
   }
 
   payment.status = "paid";
-
   payment.razorpay.paymentId = razorpay_payment_id;
   payment.razorpay.signature = razorpay_signature;
 
@@ -340,32 +316,6 @@ export const verifyOrderController = async (req, res) => {
 
   return res.status(200).json({
     message: "Payment verified successfully",
-    success: true,
-  });
-};
-
-export const deleteCartItem = async (req, res) => {
-  const { productId, variantId } = req.params;
-
-  const cart = await cartModel.findOne({ user: req.user._id });
-
-  if (!cart) {
-    return res.status(404).json({
-      message: "Cart not found",
-      success: false,
-    });
-  }
-
-  await cartModel.findOneAndUpdate(
-    {
-      user: req.user._id,
-    },
-    { $pull: { items: { product: productId, variant: variantId } } },
-    { new: true },
-  );
-
-  return res.status(200).json({
-    message: "Cart item deleted successfully",
     success: true,
   });
 };

@@ -5,6 +5,8 @@ import {
   incrementCartItemQuantity,
   decrementCartItemQuantity,
   deleteCartItem as deleteItem,
+  createCartOrder,
+  verifyCartOrder,
 } from "../service/cart.api";
 import {
   addItem as addItemToCart,
@@ -46,11 +48,31 @@ export const useCart = () => {
     return data;
   }
 
+  async function handleCreateCartOrder() {
+    const data = await createCartOrder();
+    return data.order;
+  }
+
+  async function handleVerifyCartOrder({
+    razorpay_order_id,
+    razorpay_payment_id,
+    razorpay_signature,
+  }) {
+    const data = await verifyCartOrder({
+      razorpay_order_id,
+      razorpay_payment_id,
+      razorpay_signature,
+    });
+    return data.success;
+  }
+
   return {
     handleAddItem,
     handleGetCart,
     handleIncrementCartItemQuantity,
     handleDecrementCartItemQuantity,
     handleDeleteCartItem,
+    handleCreateCartOrder,
+    handleVerifyCartOrder,
   };
 };
