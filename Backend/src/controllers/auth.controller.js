@@ -17,9 +17,9 @@ async function sendTokenResponse(user, res, message) {
   return res
     .cookie("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      secure: true,
+      sameSite: "none",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
     })
     .status(200)
     .json({
@@ -101,7 +101,7 @@ export const login = async (req, res) => {
 };
 
 export const googleCallback = async (req, res) => {
-  const { id, emails, displayName, photos } = req.user;
+  const { id, emails, displayName } = req.user;
 
   try {
     const email = emails[0].value;
@@ -129,9 +129,9 @@ export const googleCallback = async (req, res) => {
 
     res.cookie("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-      maxAge: 7 * 24 * 60 * 60 * 1000,
+      secure: true,
+      sameSite: "none",
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
     return res.redirect("https://snitch-gamma.vercel.app/");
