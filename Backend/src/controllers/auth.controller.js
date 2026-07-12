@@ -9,22 +9,30 @@ async function sendTokenResponse(user, res, message) {
       role: user.role,
     },
     config.JWT_SECRET,
-    { expiresIn: "7d" },
+    {
+      expiresIn: "7d",
+    },
   );
 
-  res.cookie("token", token);
-
-  res.status(200).json({
-    message,
-    success: true,
-    user: {
-      id: user._id,
-      email: user.email,
-      contact: user.contact,
-      fullname: user.fullname,
-      role: user.role,
-    },
-  });
+  return res
+    .cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    })
+    .status(200)
+    .json({
+      success: true,
+      message,
+      user: {
+        id: user._id,
+        email: user.email,
+        contact: user.contact,
+        fullname: user.fullname,
+        role: user.role,
+      },
+    });
 }
 
 export const register = async (req, res) => {
@@ -36,9 +44,10 @@ export const register = async (req, res) => {
     });
 
     if (isExistingUser) {
-      return res
-        .status(400)
-        .json({ message: "User with this email or conatct already exists" });
+      return res.status(400).json({
+        success: false,
+        message: "User with this email or contact already exists",
+      });
     }
 
     const user = await userModel.create({
@@ -49,85 +58,96 @@ export const register = async (req, res) => {
       role: isSeller ? "seller" : "buyer",
     });
 
-    await sendTokenResponse(user, res, "User registered successfully");
-    return res.status(200).json({
-      success: true,
-      message: "Registered successful",
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role, // if you have roles
-      },
-    });
+    return sendTokenResponse(user, res, "User registered successfully");
   } catch (err) {
-    console.log(err);
-    return res.status(500).json({ message: err.message });
+    console.error(err);
+    return res.status(500).json({
+      success: false,
+      message: err.message,
+    });
   }
 };
 
 export const login = async (req, res) => {
   const { email, password } = req.body;
 
-  const user = await userModel.findOne({ email }).select("+password");
+  try {
+    const user = await userModel.findOne({ email }).select("+password");
 
-  if (!user) {
-    return res.status(400).json({ message: "Invalid credentials" });
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid credentials",
+      });
+    }
+
+    const isPasswordValid = await user.comparePassword(password);
+
+    if (!isPasswordValid) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid credentials",
+      });
+    }
+
+    return sendTokenResponse(user, res, "Login successful");
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({
+      success: false,
+      message: err.message,
+    });
   }
-
-  const isPasswordValid = await user.comparePassword(password);
-
-  if (!isPasswordValid) {
-    return res.status(400).json({ message: "Invalid credentials" });
-  }
-
-  await sendTokenResponse(user, res, "Login successful");
-
-  return res.status(200).json({
-    success: true,
-    message: "Login successful",
-    user: {
-      id: user._id,
-      name: user.name,
-      email: user.email,
-      role: user.role, // if you have roles
-    },
-  });
 };
 
 export const googleCallback = async (req, res) => {
   const { id, emails, displayName, photos } = req.user;
 
-  const email = emails[0].value;
-  const profilePic = photos[0].value;
+  try {
+    const email = emails[0].value;
 
-  let user = await userModel.findOne({ email });
+    let user = await userModel.findOne({ email });
 
-  if (!user) {
-    user = await userModel.create({
-      email,
-      googleId: id,
-      fullname: displayName,
+    if (!user) {
+      user = await userModel.create({
+        email,
+        googleId: id,
+        fullname: displayName,
+      });
+    }
+
+    const token = jwt.sign(
+      {
+        id: user._id,
+        role: user.role,
+      },
+      config.JWT_SECRET,
+      {
+        expiresIn: "7d",
+      },
+    );
+
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    return res.redirect("https://snitch-gamma.vercel.app/");
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({
+      success: false,
+      message: err.message,
     });
   }
-
-  const token = jwt.sign(
-    {
-      id: user._id,
-    },
-    config.JWT_SECRET,
-    { expiresIn: "7d" },
-  );
-
-  res.cookie("token", token);
-
-  res.redirect("http://localhost:5173/");
 };
 
 export const getMe = async (req, res) => {
   const user = req.user;
 
-  res.status(200).json({
+  return res.status(200).json({
     success: true,
     user: {
       id: user._id,
