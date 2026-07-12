@@ -274,6 +274,7 @@ export const createOrderController = async (req, res) => {
 };
 
 export const verifyOrderController = async (req, res) => {
+  console.log("verifyOrderController called");
   const { razorpay_order_id, razorpay_payment_id, razorpay_signature } =
     req.body;
 
@@ -294,6 +295,7 @@ export const verifyOrderController = async (req, res) => {
       order_id: razorpay_order_id,
       payment_id: razorpay_payment_id,
     },
+
     razorpay_signature,
     config.RAZORPAY_KEY_SECRET,
   );
