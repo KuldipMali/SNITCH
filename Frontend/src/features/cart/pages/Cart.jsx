@@ -71,16 +71,16 @@ const Cart = () => {
     console.log(order);
 
     const options = {
-      key: "rzp_test_SpvqNmaQNx16TC",
+      key: "rzp_test_TCVEegop3rTUDG",
       amount: order.amount, // Amount in paise
       currency: order.currency,
       name: "Snitch",
       description: "Test Transaction",
       order_id: order.id, // Generate order_id on server
-      handler: async(response) => {
-        const isValid = await handleVerifyCartOrder(response)
+      handler: async (response) => {
+        const isValid = await handleVerifyCartOrder(response);
 
-        if(isValid){
+        if (isValid) {
           navigate(`/order-success?order_id=${response?.razorpay_order_id}`);
         }
       },
