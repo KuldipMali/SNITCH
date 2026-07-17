@@ -265,6 +265,7 @@ export const createOrderController = async (req, res) => {
       },
     })),
   });
+  console.log("RAZORPAY ORDER:", order);
 
   return res.status(200).json({
     message: "Order created successfully",

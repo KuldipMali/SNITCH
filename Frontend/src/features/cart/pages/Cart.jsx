@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useCart } from "../hook/useCart";
 import { Link, useNavigate } from "react-router";
-import { useRazorpay } from "react-razorpay";
 
 /* ─── Inline styles & tokens matching the "Avenue Montaigne" design system ─── */
 const tokens = {
@@ -33,7 +32,6 @@ const Cart = () => {
   } = useCart();
   const navigate = useNavigate();
   const user = useSelector((state) => state.user);
-  const { error, isLoading, Razorpay } = useRazorpay();
 
   /* Local quantity state — key: cartItem._id, value: number */
   const [quantities, setQuantities] = useState({});
@@ -67,35 +65,86 @@ const Cart = () => {
     `${currency} ${Number(amount).toLocaleString("en-IN")}`;
 
   async function handleCheckOut() {
-    const order = await handleCreateCartOrder();
-    console.log(order);
+    try {
+      const order = await handleCreateCartOrder();
 
-    const options = {
-      key: "rzp_test_TCVEegop3rTUDG",
-      amount: order.amount, // Amount in paise
-      currency: order.currency,
-      name: "Snitch",
-      description: "Test Transaction",
-      order_id: order.id, // Generate order_id on server
-      handler: async (response) => {
-        const isValid = await handleVerifyCartOrder(response);
+      if (!order || !order.id) {
+        alert("Failed to create Razorpay order.");
+        return;
+      }
 
-        if (isValid) {
-          navigate(`/order-success?order_id=${response?.razorpay_order_id}`);
+      console.log("RAZORPAY ORDER:", order);
+
+      const options = {
+        key: "rzp_test_TETN5ZpW4XgW5I",
+        amount: order.amount,
+        currency: order.currency,
+        name: "Snitch",
+        description: "Test Transaction",
+        order_id: order.id,
+
+        handler: async function (response) {
+          try {
+            console.log("PAYMENT SUCCESS", response);
+
+            const isValid = await handleVerifyCartOrder(response);
+
+            if (isValid) {
+              navigate(`/order-success?order_id=${response.razorpay_order_id}`);
+            } else {
+              alert("Payment verification failed.");
+            }
+          } catch (err) {
+            console.error("Verification Error:", err);
+            alert("Payment verification failed.");
+          }
+        },
+
+        prefill: {
+          name: user?.fullname || "",
+          email: user?.email || "",
+          contact: user?.contact || "",
+        },
+
+        theme: {
+          color: tokens.primary,
+        },
+
+        modal: {
+          ondismiss: function () {
+            console.log("Checkout closed by user");
+          },
+        },
+      };
+
+      console.log("OPTIONS:", options);
+
+      const razorpayInstance = new window.Razorpay(options);
+
+      razorpayInstance.on("payment.failed", function (response) {
+        console.log("=========== PAYMENT FAILED ===========");
+
+        console.log(response);
+
+        if (response.error) {
+          console.log("Code:", response.error.code);
+          console.log("Description:", response.error.description);
+          console.log("Source:", response.error.source);
+          console.log("Step:", response.error.step);
+          console.log("Reason:", response.error.reason);
+          console.log("Metadata:", response.error.metadata);
+
+          alert(response.error.description);
+        } else {
+          console.log("Unknown Razorpay Error");
         }
-      },
-      prefill: {
-        name: user?.fullname,
-        email: user?.email,
-        contact: user?.contact,
-      },
-      theme: {
-        color: tokens.primary,
-      },
-    };
+      });
 
-    const razorpayInstance = new Razorpay(options);
-    razorpayInstance.open();
+      razorpayInstance.open();
+    } catch (err) {
+      console.error("Checkout Error:", err);
+      alert("Unable to start payment.");
+    }
   }
 
   /* ─── Empty state ─── */
